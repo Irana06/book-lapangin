@@ -29,6 +29,8 @@ var funcs = template.FuncMap{
 	"jamSelesai":  endClock,
 	"isoDate":     func(t time.Time) string { return t.Format("2006-01-02") },
 	"namaHari":    func(wd time.Weekday) string { return dayNames[wd] },
+	"hariPendek":  func(t time.Time) string { return dayNames[t.Weekday()][:3] },
+	"bulanPendek": func(t time.Time) string { return monthShort[t.Month()-1] },
 	"clock":       clock,
 	"statusLabel": statusLabel,
 	"waLink":      waLink,

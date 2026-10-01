@@ -1,10 +1,13 @@
 {{define "content"}}
-<div class="section-head">
-  <h1>Booking</h1>
-  <a class="btn btn-primary btn-small" href="/admin/booking/baru">Booking manual</a>
-</div>
+<header class="admin-head">
+  <div>
+    <p class="eyebrow">Booking</p>
+    <h1>Semua booking</h1>
+  </div>
+  <a class="btn btn-primary" href="/admin/booking/baru">Booking manual</a>
+</header>
 
-<form method="get" action="/admin/booking" class="filters">
+<form method="get" action="/admin/booking" class="toolbar filters">
   <div class="field">
     <label for="status">Status</label>
     <select id="status" name="status">
@@ -18,15 +21,17 @@
     <label for="date">Tanggal main</label>
     <input id="date" type="date" name="date" value="{{.Date}}">
   </div>
-  <button type="submit" class="btn btn-secondary">Terapkan</button>
-  {{if or .Status .Date}}<a href="/admin/booking">Hapus filter</a>{{end}}
+  <div class="filters-actions">
+    <button type="submit" class="btn btn-secondary">Terapkan</button>
+    {{if or .Status .Date}}<a href="/admin/booking">Hapus filter</a>{{end}}
+  </div>
 </form>
 
 {{if .Bookings}}
 <div class="booking-list">
   {{range .Bookings}}{{template "booking_item" .}}{{end}}
 </div>
-<p class="muted small">Menampilkan maksimal 200 booking terbaru sesuai filter.</p>
+<p class="hint">Menampilkan maksimal 200 booking sesuai filter, diurutkan dari jadwal terbaru.</p>
 {{else}}
 <p class="empty">Tidak ada booking yang cocok dengan filter ini.</p>
 {{end}}

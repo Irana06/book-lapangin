@@ -1,15 +1,20 @@
 {{define "content"}}
-<div class="section-head">
-  <h1>Jadwal {{tanggal .Day}}</h1>
-  <a class="btn btn-primary btn-small" href="/admin/booking/baru?date={{isoDate .Day}}">Booking manual</a>
-</div>
+<header class="admin-head">
+  <div>
+    <p class="eyebrow">Jadwal</p>
+    <h1>{{tanggal .Day}}</h1>
+  </div>
+  <a class="btn btn-primary" href="/admin/booking/baru?date={{isoDate .Day}}">Booking manual</a>
+</header>
 
-<nav class="day-nav" aria-label="Pilih tanggal">
-  <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Prev}}">Sebelumnya</a>
-  <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Today}}">Hari ini</a>
-  <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Next}}">Berikutnya</a>
-  <form method="get" action="/admin/jadwal" class="day-jump">
-    <label for="date" class="visually-hidden">Tanggal</label>
+<nav class="toolbar" aria-label="Pilih tanggal">
+  <div class="btn-group">
+    <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Prev}}" aria-label="Hari sebelumnya">Sebelumnya</a>
+    <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Today}}"{{if .Day.Equal .Today}} aria-current="date"{{end}}>Hari ini</a>
+    <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Next}}" aria-label="Hari berikutnya">Berikutnya</a>
+  </div>
+  <form method="get" action="/admin/jadwal" class="toolbar-date">
+    <label for="date" class="visually-hidden">Pilih tanggal</label>
     <input id="date" type="date" name="date" value="{{isoDate .Day}}" onchange="this.form.submit()">
     <noscript><button type="submit" class="btn btn-ghost btn-small">Buka</button></noscript>
   </form>
@@ -20,12 +25,17 @@
 {{else if not .Open}}
 <p class="empty">Tutup pada hari {{namaHari .Day.Weekday}}. Jam buka bisa diubah di <a href="/admin/pengaturan">Pengaturan</a>.</p>
 {{else}}
+<ul class="legend" aria-label="Keterangan warna">
+  <li><span class="swatch swatch-pending"></span>Menunggu pembayaran</li>
+  <li><span class="swatch swatch-confirmed"></span>Lunas</li>
+  <li><span class="swatch swatch-completed"></span>Selesai</li>
+</ul>
 <div class="table-scroll" role="region" aria-label="Grid jadwal" tabindex="0">
   <table class="schedule">
     <thead>
       <tr>
         <th scope="col">Jam</th>
-        {{range .Courts}}<th scope="col">{{.Name}}</th>{{end}}
+        {{range .Courts}}<th scope="col">{{.Name}}<span class="th-sub">{{.Sport}}</span></th>{{end}}
       </tr>
     </thead>
     <tbody>
@@ -33,21 +43,21 @@
       <tr>
         <th scope="row">{{jam .Start}}</th>
         {{range .Cells}}
-        <td>
+        <td{{if .Past}} class="is-past"{{end}}>
           {{if .Booking}}
           <div class="cell-booking cell-{{.Booking.Status}}{{if not .IsStart}} cell-cont{{end}}">
             {{if .IsStart}}
             <strong>{{.Booking.CustomerName}}</strong>
-            <span class="small">{{statusLabel .Booking.Status}}, s.d. {{jamSelesai .Booking.End}}</span>
+            <span>s.d. {{jamSelesai .Booking.End}}</span>
             {{else}}
-            <span class="small">lanjutan {{.Booking.CustomerName}}</span>
+            <span>lanjutan</span>
             {{end}}
           </div>
           {{else if .Past}}
-          <span class="cell-empty" aria-label="Kosong, sudah lewat">·</span>
+          <span class="visually-hidden">Kosong, sudah lewat</span>
           {{else}}
           <a class="cell-add" href="/admin/booking/baru?court={{.Court.ID}}&date={{isoDate .Start}}&start={{jam .Start}}"
-             aria-label="Tambah booking {{.Court.Name}} jam {{jam .Start}}">+ Isi</a>
+             aria-label="Tambah booking {{.Court.Name}} jam {{jam .Start}}">Isi</a>
           {{end}}
         </td>
         {{end}}

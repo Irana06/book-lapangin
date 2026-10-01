@@ -1,42 +1,61 @@
 {{define "content"}}
 {{$b := .Booking}}
-<p class="eyebrow">Kode booking</p>
-<h1 class="booking-code">{{$b.Code}}</h1>
-<p><span class="status status-{{$b.Status}}">{{statusLabel $b.Status}}</span></p>
-<p class="muted small">Simpan kode ini. Status booking bisa dicek lagi di halaman <a href="/cek">Cek booking</a>.</p>
+<div class="receipt-wrap">
+{{if eq $b.Status "pending"}}{{template "steps" 3}}{{end}}
 
-<dl class="summary">
-  <div><dt>Tempat</dt><dd><a href="/v/{{.Venue.Slug}}">{{.Venue.Name}}</a></dd></div>
-  <div><dt>Lapangan</dt><dd>{{$b.CourtName}} ({{$b.Sport}})</dd></div>
-  <div><dt>Tanggal</dt><dd>{{tanggal $b.Start}}</dd></div>
-  <div><dt>Jam</dt><dd>{{jam $b.Start}}–{{jamSelesai $b.End}} ({{$b.Hours}} jam)</dd></div>
-  <div><dt>Atas nama</dt><dd>{{$b.CustomerName}}, {{$b.CustomerPhone}}</dd></div>
-  <div><dt>Total</dt><dd><strong>{{rupiah $b.TotalPrice}}</strong></dd></div>
-</dl>
+<article class="receipt">
+  <header class="receipt-head">
+    <div>
+      <p class="eyebrow">Kode booking</p>
+      <p class="booking-code">{{$b.Code}}</p>
+    </div>
+    <span class="status status-{{$b.Status}}">{{statusLabel $b.Status}}</span>
+  </header>
 
-{{if eq $b.Status "pending"}}
-<section class="pay" aria-labelledby="pay-title">
-  <h2 id="pay-title">Cara bayar</h2>
-  {{if .Venue.PaymentInfo}}
-  <p class="prewrap">{{.Venue.PaymentInfo}}</p>
-  {{else}}
-  <p>Pengelola belum mencantumkan info pembayaran. Hubungi mereka lewat WhatsApp.</p>
-  {{end}}
-  {{with $b.HoldExpiresAt}}
-  <p>Bayar sebelum <strong>jam {{jam .}}, {{tanggal .}}</strong>. Lewat dari itu, booking batal otomatis.</p>
-  {{end}}
-  {{if .Venue.Phone}}
-  <p><a class="btn btn-primary" target="_blank" rel="noopener"
-        href="{{waLink .Venue.Phone (printf "Halo, saya sudah booking %s kode %s untuk %s jam %s. Berikut bukti pembayarannya." $b.CourtName $b.Code (tanggal $b.Start) (jam $b.Start))}}">Kirim bukti bayar lewat WhatsApp</a></p>
-  {{end}}
-</section>
+  <dl class="summary">
+    <div><dt>Tempat</dt><dd><a href="/v/{{.Venue.Slug}}">{{.Venue.Name}}</a></dd></div>
+    <div><dt>Lapangan</dt><dd>{{$b.CourtName}}, {{$b.Sport}}</dd></div>
+    <div><dt>Tanggal</dt><dd>{{tanggal $b.Start}}</dd></div>
+    <div><dt>Jam</dt><dd>{{jam $b.Start}}–{{jamSelesai $b.End}} ({{$b.Hours}} jam)</dd></div>
+    <div><dt>Atas nama</dt><dd>{{$b.CustomerName}}, {{$b.CustomerPhone}}</dd></div>
+  </dl>
+  <div class="receipt-total">
+    <span>Total</span>
+    <strong>{{rupiah $b.TotalPrice}}</strong>
+  </div>
 
-<form method="post" action="/b/{{$b.Code}}/batal" onsubmit="return confirm('Batalkan booking {{$b.Code}}?')">
-  <button type="submit" class="btn btn-ghost">Batalkan booking</button>
-</form>
-{{else if eq $b.Status "confirmed"}}
-<p class="notice notice-ok">Pembayaran sudah diterima. Sampai jumpa di lapangan.</p>
-{{else if eq $b.Status "expired"}}
-<p class="notice">Booking ini batal karena belum dibayar sampai batas waktu. <a href="/v/{{.Venue.Slug}}">Booking ulang</a></p>
-{{end}}
+  {{if eq $b.Status "pending"}}
+  <section class="pay" aria-labelledby="pay-title">
+    <h2 id="pay-title">Cara bayar</h2>
+    {{with $b.HoldExpiresAt}}
+    <p class="deadline">Bayar sebelum <strong>{{jam .}}, {{tanggal .}}</strong></p>
+    {{end}}
+    {{if .Venue.PaymentInfo}}
+    <p class="prewrap pay-info">{{.Venue.PaymentInfo}}</p>
+    {{else}}
+    <p>Pengelola belum mencantumkan info pembayaran. Hubungi mereka lewat WhatsApp.</p>
+    {{end}}
+    {{if .Venue.Phone}}
+    <a class="btn btn-primary btn-block" target="_blank" rel="noopener"
+       href="{{waLink .Venue.Phone (printf "Halo, saya sudah booking %s kode %s untuk %s jam %s. Berikut bukti pembayarannya." $b.CourtName $b.Code (tanggal $b.Start) (jam $b.Start))}}">Kirim bukti bayar lewat WhatsApp</a>
+    {{end}}
+  </section>
+  {{else if eq $b.Status "confirmed"}}
+  <p class="notice notice-ok">Pembayaran sudah diterima. Tunjukkan kode ini ke pengelola saat datang.</p>
+  {{else if eq $b.Status "expired"}}
+  <p class="notice">Booking ini batal karena belum dibayar sampai batas waktu. <a href="/v/{{.Venue.Slug}}">Booking ulang</a></p>
+  {{else if eq $b.Status "cancelled"}}
+  <p class="notice">Booking ini sudah dibatalkan. <a href="/v/{{.Venue.Slug}}">Lihat jadwal lain</a></p>
+  {{end}}
+</article>
+
+<div class="receipt-actions">
+  <p class="hint">Simpan kode ini untuk <a href="/cek">cek status booking</a> kapan saja.</p>
+  {{if eq $b.Status "pending"}}
+  <form method="post" action="/b/{{$b.Code}}/batal" onsubmit="return confirm('Batalkan booking {{$b.Code}}?')">
+    <button type="submit" class="btn btn-ghost btn-small">Batalkan booking</button>
+  </form>
+  {{end}}
+</div>
+</div>
 {{end}}

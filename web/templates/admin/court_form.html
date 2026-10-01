@@ -1,8 +1,13 @@
 {{define "content"}}
-<p><a href="/admin/lapangan">Kembali ke daftar lapangan</a></p>
-<h1>{{.Title}}</h1>
+<p class="back-link"><a href="/admin/lapangan">Kembali ke daftar lapangan</a></p>
+<header class="admin-head">
+  <div>
+    <p class="eyebrow">Lapangan</p>
+    <h1>{{.Title}}</h1>
+  </div>
+</header>
 
-<form method="post" action="{{if .ID}}/admin/lapangan/{{.ID}}{{else}}/admin/lapangan/baru{{end}}" class="form" novalidate>
+<form method="post" action="{{if .ID}}/admin/lapangan/{{.ID}}{{else}}/admin/lapangan/baru{{end}}" class="form panel" novalidate>
   <div class="field">
     <label for="name">Nama lapangan</label>
     <input id="name" name="name" value="{{.Form.Name}}" required maxlength="60" placeholder="Lapangan A"

@@ -1,13 +1,15 @@
 {{define "content"}}
-<h1>Cek booking</h1>
-<p class="muted">Masukkan kode booking 8 huruf yang kamu dapat setelah booking.</p>
-<form method="get" action="/cek" class="form form-inline">
-  <div class="field">
-    <label for="code">Kode booking</label>
-    <input id="code" name="code" value="{{.Code}}" required maxlength="8" autocapitalize="characters" autocomplete="off"
-           class="input-code" {{with .Error}}aria-invalid="true" aria-describedby="code-error"{{end}}>
-    {{with .Error}}<p id="code-error" class="field-error">{{.}}</p>{{end}}
-  </div>
-  <button type="submit" class="btn btn-secondary">Cek status</button>
-</form>
+<section class="card card-narrow">
+  <h1>Cek booking</h1>
+  <p class="muted">Masukkan kode 8 karakter yang kamu dapat setelah booking.</p>
+  <form method="get" action="/cek" class="form">
+    <div class="field">
+      <label for="code">Kode booking</label>
+      <input id="code" name="code" value="{{.Code}}" required maxlength="8" autocapitalize="characters" autocomplete="off"
+             spellcheck="false" class="input-code" {{with .Error}}aria-invalid="true" aria-describedby="code-error"{{end}}>
+      {{with .Error}}<p id="code-error" class="field-error">{{.}}</p>{{end}}
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Cek status</button>
+  </form>
+</section>
 {{end}}

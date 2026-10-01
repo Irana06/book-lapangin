@@ -1,12 +1,17 @@
 {{define "content"}}
-<p><a href="/admin/jadwal?date={{.Form.Date}}">Kembali ke jadwal</a></p>
-<h1>Booking manual</h1>
-<p class="muted">Untuk pesanan lewat WhatsApp, telepon, atau datang langsung. Booking ini langsung berstatus lunas.</p>
+<p class="back-link"><a href="/admin/jadwal?date={{.Form.Date}}">Kembali ke jadwal</a></p>
+<header class="admin-head">
+  <div>
+    <p class="eyebrow">Booking</p>
+    <h1>Booking manual</h1>
+    <p class="muted">Untuk pesanan lewat WhatsApp, telepon, atau datang langsung. Langsung berstatus lunas.</p>
+  </div>
+</header>
 
 {{if not .Courts}}
 <p class="empty">Belum ada lapangan aktif. <a href="/admin/lapangan/baru">Tambah lapangan</a> dulu.</p>
 {{else}}
-<form method="post" action="/admin/booking/baru" class="form" novalidate>
+<form method="post" action="/admin/booking/baru" class="form panel" novalidate>
   {{with .Errors.form}}<p class="notice notice-error" role="alert">{{.}}</p>{{end}}
 
   <div class="field">

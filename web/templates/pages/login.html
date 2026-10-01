@@ -1,6 +1,7 @@
 {{define "content"}}
-<section class="narrow">
+<section class="card card-narrow">
   <h1>Masuk pengelola</h1>
+  <p class="muted">Khusus pemilik dan admin venue.</p>
   <form method="post" action="/admin/login" class="form">
     {{with .Error}}<p class="notice notice-error" role="alert">{{.}}</p>{{end}}
     <div class="field">
@@ -11,7 +12,7 @@
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required>
     </div>
-    <button type="submit" class="btn btn-primary">Masuk</button>
+    <button type="submit" class="btn btn-primary btn-block">Masuk</button>
   </form>
 </section>
 {{end}}

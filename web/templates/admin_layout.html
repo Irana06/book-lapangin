@@ -1,36 +1,38 @@
 {{define "admin_layout"}}<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex">
   <title>{{.Title}} · {{.Venue.Name}}</title>
-  <link rel="stylesheet" href="/static/css/app.css">
-  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
-  <script src="/static/js/app.js" defer></script>
+  <meta name="robots" content="noindex">
+  {{template "head_assets"}}
 </head>
 <body class="admin">
   <a class="skip-link" href="#main">Lewati ke konten</a>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a href="/admin" class="brand">{{.Venue.Name}}</a>
-      <form method="post" action="/admin/logout" class="logout">
-        <span class="muted small">{{.User.Name}}</span>
-        <button type="submit" class="btn btn-ghost btn-small">Keluar</button>
-      </form>
-    </div>
-    <nav class="adminnav" aria-label="Menu pengelola">
-      <a href="/admin"{{if eq .Path "/admin"}} aria-current="page"{{end}}>Ringkasan</a>
-      <a href="/admin/jadwal"{{if eq .Path "/admin/jadwal"}} aria-current="page"{{end}}>Jadwal</a>
-      <a href="/admin/booking"{{if eq .Path "/admin/booking"}} aria-current="page"{{end}}>Booking</a>
-      <a href="/admin/lapangan"{{if eq .Path "/admin/lapangan"}} aria-current="page"{{end}}>Lapangan</a>
-      <a href="/admin/pengaturan"{{if eq .Path "/admin/pengaturan"}} aria-current="page"{{end}}>Pengaturan</a>
-      <a href="/v/{{.Venue.Slug}}" target="_blank" rel="noopener">Halaman publik</a>
-    </nav>
-  </header>
-  <main id="main" class="container">
-    {{with .Flash}}<p class="notice notice-ok" role="status">{{.}}</p>{{end}}
-    {{template "content" .}}
-  </main>
+  <div class="admin-shell">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <a href="/admin" class="sidebar-venue">{{.Venue.Name}}</a>
+        <span class="sidebar-sub">Panel pengelola</span>
+      </div>
+      <nav class="sidenav" aria-label="Menu pengelola">
+        <a href="/admin"{{if eq .Path "/admin"}} aria-current="page"{{end}}>Ringkasan</a>
+        <a href="/admin/jadwal"{{if eq .Path "/admin/jadwal"}} aria-current="page"{{end}}>Jadwal</a>
+        <a href="/admin/booking"{{if eq .Path "/admin/booking" "/admin/booking/baru"}} aria-current="page"{{end}}>Booking</a>
+        <a href="/admin/lapangan"{{if eq .Path "/admin/lapangan" "/admin/lapangan/baru"}} aria-current="page"{{end}}>Lapangan</a>
+        <a href="/admin/pengaturan"{{if eq .Path "/admin/pengaturan" "/admin/pengaturan/jam"}} aria-current="page"{{end}}>Pengaturan</a>
+      </nav>
+      <div class="sidebar-foot">
+        <a href="/v/{{.Venue.Slug}}" target="_blank" rel="noopener">Lihat halaman publik</a>
+        {{template "theme_toggle"}}
+        <form method="post" action="/admin/logout" class="sidebar-user">
+          <span>{{.User.Name}}</span>
+          <button type="submit" class="btn btn-ghost btn-small">Keluar</button>
+        </form>
+      </div>
+    </aside>
+    <main id="main" class="admin-main">
+      {{with .Flash}}<p class="notice notice-ok" role="status">{{.}}</p>{{end}}
+      {{template "content" .}}
+    </main>
+  </div>
 </body>
 </html>{{end}}

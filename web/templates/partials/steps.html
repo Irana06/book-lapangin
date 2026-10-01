@@ -1,0 +1,7 @@
+{{define "steps"}}
+<ol class="steps" aria-label="Langkah booking">
+  <li{{if eq . 1}} aria-current="step"{{end}}{{if gt . 1}} class="is-done"{{end}}><span>1</span>Pilih jadwal</li>
+  <li{{if eq . 2}} aria-current="step"{{end}}{{if gt . 2}} class="is-done"{{end}}><span>2</span>Data pemesan</li>
+  <li{{if eq . 3}} aria-current="step"{{end}}><span>3</span>Pembayaran</li>
+</ol>
+{{end}}

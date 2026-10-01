@@ -1,23 +1,32 @@
 {{define "content"}}
-<div class="section-head">
-  <h1>Lapangan</h1>
-  <a class="btn btn-primary btn-small" href="/admin/lapangan/baru">Tambah lapangan</a>
-</div>
+<header class="admin-head">
+  <div>
+    <p class="eyebrow">Lapangan</p>
+    <h1>Daftar lapangan</h1>
+  </div>
+  <a class="btn btn-primary" href="/admin/lapangan/baru">Tambah lapangan</a>
+</header>
 
 {{if .Courts}}
-<ul class="court-list">
-  {{range .Courts}}
-  <li class="court-row{{if not .IsActive}} is-inactive{{end}}">
-    <div>
-      <strong>{{.Name}}</strong>
-      <span class="muted">{{.Sport}}</span>
-    </div>
-    <div>{{rupiah .PricePerHour}}/jam</div>
-    <div>{{if .IsActive}}Aktif{{else}}<span class="muted">Nonaktif, tidak tampil di halaman publik</span>{{end}}</div>
-    <a href="/admin/lapangan/{{.ID}}" aria-label="Ubah {{.Name}}">Ubah</a>
-  </li>
-  {{end}}
-</ul>
+<div class="table-scroll" role="region" aria-label="Daftar lapangan" tabindex="0">
+  <table class="data-table">
+    <thead>
+      <tr><th scope="col">Nama</th><th scope="col">Olahraga</th><th scope="col" class="num">Harga per jam</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Aksi</span></th></tr>
+    </thead>
+    <tbody>
+      {{range .Courts}}
+      <tr{{if not .IsActive}} class="is-inactive"{{end}}>
+        <th scope="row">{{.Name}}</th>
+        <td>{{.Sport}}</td>
+        <td class="num">{{rupiah .PricePerHour}}</td>
+        <td>{{if .IsActive}}<span class="status status-confirmed">Aktif</span>{{else}}<span class="status status-cancelled">Nonaktif</span>{{end}}</td>
+        <td class="actions"><a href="/admin/lapangan/{{.ID}}" aria-label="Ubah {{.Name}}">Ubah</a></td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+<p class="hint">Lapangan nonaktif tidak tampil di halaman customer. Booking yang sudah ada tetap tersimpan.</p>
 {{else}}
 <p class="empty">Belum ada lapangan. Tambahkan lapangan pertama supaya customer bisa mulai booking.</p>
 {{end}}

@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -54,6 +55,18 @@ type slotsView struct {
 	Slots  []booking.Slot
 	Closed bool
 	Notice string
+
+	// Diisi oleh pickerView untuk halaman venue.
+	Courts    []store.Court
+	Days      []time.Time // pilihan cepat tanggal, maksimal 7 hari
+	Today     time.Time
+	Last      time.Time
+	PastCount int
+}
+
+// AllPast bernilai true kalau semua slot di hari itu sudah lewat.
+func (v slotsView) AllPast() bool {
+	return len(v.Slots) > 0 && v.PastCount == len(v.Slots)
 }
 
 func (s *Server) loadSlots(ctx context.Context, v store.Venue, c store.Court, day time.Time) (slotsView, error) {
@@ -78,8 +91,32 @@ func (s *Server) loadSlots(ctx context.Context, v store.Venue, c store.Court, da
 	view.Slots = booking.Slots(day, h, busy, time.Now())
 	for i := range view.Slots {
 		view.Slots[i].Start = view.Slots[i].Start.In(v.Loc())
+		view.Slots[i].End = view.Slots[i].End.In(v.Loc())
 	}
 	return view, nil
+}
+
+// pickerView menyiapkan blok pemilih lapangan, tanggal, dan slot di halaman venue.
+func (s *Server) pickerView(ctx context.Context, v store.Venue, courts []store.Court, c store.Court, day time.Time) (slotsView, error) {
+	view, err := s.loadSlots(ctx, v, c, day)
+	if err != nil {
+		return view, err
+	}
+	view.Courts = courts
+	view.Today, view.Last = bookingWindow(v)
+	for d := view.Today; !d.After(view.Last) && len(view.Days) < 7; d = d.AddDate(0, 0, 1) {
+		view.Days = append(view.Days, d)
+	}
+	for _, sl := range view.Slots {
+		if sl.IsPast() {
+			view.PastCount++
+		}
+	}
+	return view, nil
+}
+
+func venueURL(v store.Venue, c store.Court, day time.Time) string {
+	return fmt.Sprintf("/v/%s?court=%d&date=%s", v.Slug, c.ID, day.Format("2006-01-02"))
 }
 
 // pickCourt memilih lapangan dari query ?court=, default lapangan pertama.
@@ -118,22 +155,18 @@ func (s *Server) handleVenue(w http.ResponseWriter, r *http.Request) {
 		"Title":  v.Name,
 		"Venue":  v,
 		"Courts": courts,
-		"Day":    day,
-		"Today":  today,
-		"Last":   last,
 	}
 	c, ok := pickCourt(courts, r.URL.Query().Get("court"))
 	if !ok && len(courts) > 0 {
 		c, ok = courts[0], true
 	}
 	if ok {
-		view, err := s.loadSlots(r.Context(), v, c, day)
+		view, err := s.pickerView(r.Context(), v, courts, c, day)
 		if err != nil {
 			s.serverError(w, err)
 			return
 		}
-		d["Court"] = c
-		d["SlotsView"] = view
+		d["Picker"] = view
 	}
 	s.render(w, r, http.StatusOK, "venue.html", d)
 }
@@ -160,12 +193,14 @@ func (s *Server) handleSlots(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Format tanggal tidak valid.", http.StatusBadRequest)
 		return
 	}
-	view, err := s.loadSlots(r.Context(), v, c, day)
+	view, err := s.pickerView(r.Context(), v, courts, c, day)
 	if err != nil {
 		s.serverError(w, err)
 		return
 	}
-	s.renderPartial(w, http.StatusOK, "slots", view)
+	// Perbarui URL di browser supaya pilihan bisa dibagikan dan tombol back tetap jalan.
+	w.Header().Set("HX-Push-Url", venueURL(v, c, day))
+	s.renderPartial(w, http.StatusOK, "picker", view)
 }
 
 func (s *Server) partialError(w http.ResponseWriter, err error) {

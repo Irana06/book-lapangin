@@ -1,12 +1,19 @@
 {{define "content"}}
-<h1>Pilih tempat main</h1>
+<header class="page-head">
+  <h1>Pilih tempat main</h1>
+  <p class="lead">Lihat jadwal kosong dan booking langsung tanpa menunggu balasan chat.</p>
+</header>
+
 {{if .Venues}}
 <ul class="venue-list">
   {{range .Venues}}
   <li>
-    <a class="venue-link" href="/v/{{.Slug}}">
-      <strong>{{.Name}}</strong>
-      {{if .Address}}<span class="muted">{{.Address}}</span>{{end}}
+    <a class="venue-row" href="/v/{{.Slug}}">
+      <span class="venue-row-main">
+        <strong>{{.Name}}</strong>
+        {{if .Address}}<span class="muted">{{.Address}}</span>{{end}}
+      </span>
+      <span class="venue-row-cta">Lihat jadwal</span>
     </a>
   </li>
   {{end}}

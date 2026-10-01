@@ -20,6 +20,11 @@ Satu instalasi bisa dipakai banyak venue; data tiap venue terpisah.
 - Kelola lapangan: nama, jenis olahraga, harga per jam, aktif/nonaktif
 - Pengaturan: profil, nomor WhatsApp, info pembayaran, batas waktu bayar, jam buka per hari
 
+**Tampilan**
+- Tema terang dan gelap: otomatis mengikuti setting perangkat, bisa diganti manual (pilihan diingat browser)
+- Responsif dari HP sampai desktop; panel admin memakai sidebar di layar lebar
+- Font Plus Jakarta Sans dari Google Fonts
+
 **Sistem**
 - Anti double booking di level database (`EXCLUDE` constraint PostgreSQL)
 - Booking yang tidak dibayar sampai batas waktu otomatis kedaluwarsa

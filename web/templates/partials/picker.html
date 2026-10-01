@@ -1,0 +1,84 @@
+{{define "picker"}}
+<div id="picker" class="picker" hx-indicator="#picker">
+  <form class="picker-side" action="/v/{{.Venue.Slug}}" method="get"
+        hx-get="/v/{{.Venue.Slug}}/slots" hx-target="#picker" hx-swap="outerHTML" hx-trigger="change">
+    <fieldset class="court-options">
+      <legend class="label">Lapangan</legend>
+      {{range .Courts}}
+      <label class="court-option">
+        <input type="radio" name="court" value="{{.ID}}"{{if eq .ID $.Court.ID}} checked{{end}}>
+        <span class="court-option-text">
+          <span class="court-option-name">{{.Name}}</span>
+          <span class="court-option-sport">{{.Sport}}</span>
+        </span>
+        <span class="court-option-price">{{rupiah .PricePerHour}}<span>/jam</span></span>
+      </label>
+      {{end}}
+    </fieldset>
+
+    <div class="field">
+      <label for="date" class="label">Tanggal lain</label>
+      <input id="date" type="date" name="date" value="{{isoDate .Day}}" min="{{isoDate .Today}}" max="{{isoDate .Last}}">
+    </div>
+    <noscript><button type="submit" class="btn btn-secondary btn-block">Tampilkan jadwal</button></noscript>
+
+    {{if gt .Venue.HoldMinutes 0}}
+    <p class="hint">Setelah booking, jadwal ditahan {{.Venue.HoldMinutes}} menit sambil menunggu pembayaran.</p>
+    {{end}}
+  </form>
+
+  <section class="slot-panel" aria-labelledby="slot-title">
+    <nav class="day-strip" aria-label="Pilih tanggal">
+      {{range $i, $d := .Days}}
+      <a class="day-chip" href="/v/{{$.Venue.Slug}}?court={{$.Court.ID}}&date={{isoDate $d}}"
+         hx-get="/v/{{$.Venue.Slug}}/slots?court={{$.Court.ID}}&date={{isoDate $d}}" hx-target="#picker" hx-swap="outerHTML"
+         {{if $d.Equal $.Day}}aria-current="date"{{end}}>
+        <span class="day-chip-name">{{if eq $i 0}}Hari ini{{else if eq $i 1}}Besok{{else}}{{hariPendek $d}}{{end}}</span>
+        <span class="day-chip-date">{{$d.Day}} {{bulanPendek $d}}</span>
+      </a>
+      {{end}}
+    </nav>
+
+    <div class="slot-panel-head">
+      <h2 id="slot-title">{{.Court.Name}} <span class="muted">· {{tanggal .Day}}</span></h2>
+      <span class="loading-text" role="status">Memuat jadwal…</span>
+    </div>
+
+    <div aria-live="polite">
+    {{if .Notice}}
+      <p class="empty">{{.Notice}}</p>
+    {{else if .Closed}}
+      <p class="empty">Tutup pada hari {{namaHari .Day.Weekday}}. Pilih tanggal lain.</p>
+    {{else if not .Slots}}
+      <p class="empty">Tidak ada jam yang bisa dibooking pada tanggal ini.</p>
+    {{else if .AllPast}}
+      <p class="empty">Semua jam hari ini sudah lewat. Pilih tanggal lain.</p>
+    {{else}}
+      {{if .PastCount}}<p class="hint slot-past-note">{{.PastCount}} jam sebelumnya sudah lewat dan tidak ditampilkan.</p>{{end}}
+      <ul class="slot-list">
+        {{range .Slots}}{{if not .IsPast}}
+        <li>
+          {{if .IsFree}}
+          <a class="slot-row" href="/v/{{$.Venue.Slug}}/booking?court={{$.Court.ID}}&date={{isoDate $.Day}}&start={{jam .Start}}">
+            <span class="slot-time">{{jam .Start}}<span class="slot-end">–{{jamSelesai .End}}</span></span>
+            <span class="slot-status">Tersedia</span>
+            <span class="slot-price">{{rupiah $.Court.PricePerHour}}</span>
+            <span class="slot-cta">Pilih</span>
+          </a>
+          {{else}}
+          <div class="slot-row is-taken">
+            <span class="slot-time">{{jam .Start}}<span class="slot-end">–{{jamSelesai .End}}</span></span>
+            <span class="slot-status">Terisi</span>
+            <span class="slot-price"></span>
+            <span class="slot-cta"></span>
+          </div>
+          {{end}}
+        </li>
+        {{end}}{{end}}
+      </ul>
+      <p class="hint">Pilih jam mulai. Durasi bisa ditambah di langkah berikutnya.</p>
+    {{end}}
+    </div>
+  </section>
+</div>
+{{end}}

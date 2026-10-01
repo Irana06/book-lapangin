@@ -1,33 +1,39 @@
 {{define "booking_item"}}
-<article class="booking-item" id="booking-{{.ID}}">
+<article class="booking-item is-{{.Status}}" id="booking-{{.ID}}">
+  <div class="bi-time">
+    <strong>{{jam .Start}}–{{jamSelesai .End}}</strong>
+    <span>{{tglPendek .Start}}</span>
+  </div>
   <div class="bi-main">
-    <p class="bi-when"><strong>{{jam .Start}}–{{jamSelesai .End}}</strong> <span class="muted">{{tglPendek .Start}}</span></p>
-    <p>{{.CourtName}} · {{.CustomerName}} ·
+    <p class="bi-title">{{.CustomerName}} <span class="muted">· {{.CourtName}}</span></p>
+    <p class="bi-meta">
       <a href="{{waLink .CustomerPhone (printf "Halo %s, ini terkait booking %s (%s, %s jam %s)." .CustomerName .Code .CourtName (tanggal .Start) (jam .Start))}}"
-         target="_blank" rel="noopener" aria-label="Chat WhatsApp {{.CustomerName}}">{{.CustomerPhone}}</a></p>
-    {{if .Notes}}<p class="muted small">Catatan: {{.Notes}}</p>{{end}}
-    <p class="muted small">Kode {{.Code}}{{if eq .Source "admin"}}, dicatat admin{{end}}</p>
+         target="_blank" rel="noopener" aria-label="Chat WhatsApp {{.CustomerName}}, {{.CustomerPhone}}">{{.CustomerPhone}}</a>
+      <span>Kode {{.Code}}</span>
+      {{if eq .Source "admin"}}<span>Dicatat admin</span>{{end}}
+    </p>
+    {{if .Notes}}<p class="bi-notes">{{.Notes}}</p>{{end}}
   </div>
   <div class="bi-side">
     <span class="status status-{{.Status}}">{{statusLabel .Status}}</span>
     <span class="bi-price">{{rupiah .TotalPrice}}</span>
-    {{if or .CanConfirm .CanCancel}}
-    <div class="bi-actions">
-      {{if .CanConfirm}}
-      <form method="post" action="/admin/booking/{{.ID}}/konfirmasi"
-            hx-post="/admin/booking/{{.ID}}/konfirmasi" hx-target="#booking-{{.ID}}" hx-swap="outerHTML">
-        <button type="submit" class="btn btn-primary btn-small">Tandai lunas</button>
-      </form>
-      {{end}}
-      {{if .CanCancel}}
-      <form method="post" action="/admin/booking/{{.ID}}/batal"
-            hx-post="/admin/booking/{{.ID}}/batal" hx-target="#booking-{{.ID}}" hx-swap="outerHTML"
-            hx-confirm="Batalkan booking {{.Code}} atas nama {{.CustomerName}}?">
-        <button type="submit" class="btn btn-ghost btn-small">Batalkan</button>
-      </form>
-      {{end}}
-    </div>
+  </div>
+  {{if or .CanConfirm .CanCancel}}
+  <div class="bi-actions">
+    {{if .CanConfirm}}
+    <form method="post" action="/admin/booking/{{.ID}}/konfirmasi"
+          hx-post="/admin/booking/{{.ID}}/konfirmasi" hx-target="#booking-{{.ID}}" hx-swap="outerHTML">
+      <button type="submit" class="btn btn-primary btn-small">Tandai lunas</button>
+    </form>
+    {{end}}
+    {{if .CanCancel}}
+    <form method="post" action="/admin/booking/{{.ID}}/batal"
+          hx-post="/admin/booking/{{.ID}}/batal" hx-target="#booking-{{.ID}}" hx-swap="outerHTML"
+          hx-confirm="Batalkan booking {{.Code}} atas nama {{.CustomerName}}?">
+      <button type="submit" class="btn btn-ghost btn-small">Batalkan</button>
+    </form>
     {{end}}
   </div>
+  {{end}}
 </article>
 {{end}}

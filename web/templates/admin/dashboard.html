@@ -1,12 +1,18 @@
 {{define "content"}}
-<h1>{{tanggal .Today}}</h1>
+<header class="admin-head">
+  <div>
+    <p class="eyebrow">Ringkasan</p>
+    <h1>{{tanggal .Today}}</h1>
+  </div>
+  <a class="btn btn-primary" href="/admin/booking/baru">Booking manual</a>
+</header>
 
 <dl class="stats">
   <div class="stat">
     <dt>Booking hari ini</dt>
     <dd>{{.Stats.TodayBookings}}</dd>
   </div>
-  <div class="stat">
+  <div class="stat{{if .Stats.Pending}} stat-attention{{end}}">
     <dt>Menunggu pembayaran</dt>
     <dd>{{.Stats.Pending}}</dd>
   </div>
@@ -16,35 +22,41 @@
   </div>
 </dl>
 
-<section aria-labelledby="pending-title">
-  <h2 id="pending-title">Menunggu pembayaran</h2>
-  {{if .Pending}}
-  <div class="booking-list">
-    {{range .Pending}}{{template "booking_item" .}}{{end}}
-  </div>
-  {{else}}
-  <p class="empty">Tidak ada booking yang menunggu pembayaran.</p>
-  {{end}}
-</section>
-
-<section aria-labelledby="today-title">
-  <div class="section-head">
-    <h2 id="today-title">Jadwal hari ini</h2>
-    <a href="/admin/jadwal">Lihat grid jadwal</a>
-  </div>
-  {{if .Todays}}
-  <ul class="today-list">
-    {{range .Todays}}
-    <li>
-      <span class="today-time">{{jam .Start}}–{{jamSelesai .End}}</span>
-      <span>{{.CourtName}}</span>
-      <span>{{.CustomerName}}</span>
-      <span class="status status-{{.Status}}">{{statusLabel .Status}}</span>
-    </li>
+<div class="dash-grid">
+  <section class="panel" aria-labelledby="pending-title">
+    <div class="panel-head">
+      <h2 id="pending-title">Menunggu pembayaran</h2>
+      <a href="/admin/booking?status=pending">Semua</a>
+    </div>
+    {{if .Pending}}
+    <div class="booking-list">
+      {{range .Pending}}{{template "booking_item" .}}{{end}}
+    </div>
+    {{else}}
+    <p class="empty">Tidak ada booking yang menunggu pembayaran.</p>
     {{end}}
-  </ul>
-  {{else}}
-  <p class="empty">Belum ada booking untuk hari ini.</p>
-  {{end}}
-</section>
+  </section>
+
+  <section class="panel" aria-labelledby="today-title">
+    <div class="panel-head">
+      <h2 id="today-title">Jadwal hari ini</h2>
+      <a href="/admin/jadwal">Grid jadwal</a>
+    </div>
+    {{if .Todays}}
+    <ol class="timeline">
+      {{range .Todays}}
+      <li class="is-{{.Status}}">
+        <span class="timeline-time">{{jam .Start}}–{{jamSelesai .End}}</span>
+        <span class="timeline-body">
+          <strong>{{.CustomerName}}</strong>
+          <span class="muted">{{.CourtName}} · {{statusLabel .Status}}</span>
+        </span>
+      </li>
+      {{end}}
+    </ol>
+    {{else}}
+    <p class="empty">Belum ada booking untuk hari ini.</p>
+    {{end}}
+  </section>
+</div>
 {{end}}

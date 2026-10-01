@@ -1,59 +1,73 @@
 {{define "content"}}
-<p><a href="/v/{{.Venue.Slug}}?court={{.Court.ID}}&date={{isoDate .Day}}">Kembali ke jadwal</a></p>
-<h1>Booking {{.Court.Name}}</h1>
+<p class="back-link"><a href="/v/{{.Venue.Slug}}?court={{.Court.ID}}&date={{isoDate .Day}}">Kembali ke jadwal</a></p>
+{{template "steps" 2}}
 
-<dl class="summary">
-  <div><dt>Tempat</dt><dd>{{.Venue.Name}}</dd></div>
-  <div><dt>Lapangan</dt><dd>{{.Court.Name}} ({{.Court.Sport}})</dd></div>
-  <div><dt>Tanggal</dt><dd>{{tanggal .Day}}</dd></div>
-  <div><dt>Jam mulai</dt><dd>{{jam .Start}}</dd></div>
-</dl>
+<div class="two-col">
+  <div class="two-col-main">
+    <h1>Data pemesan</h1>
 
-{{if not .Options}}
-<p class="notice notice-error" role="alert">Jam {{jam .Start}} sudah tidak tersedia. Pilih jam lain di halaman jadwal.</p>
-{{else}}
-<form method="post" action="/v/{{.Venue.Slug}}/booking" class="form" novalidate>
-  <input type="hidden" name="court" value="{{.Court.ID}}">
-  <input type="hidden" name="date" value="{{isoDate .Day}}">
-  <input type="hidden" name="start" value="{{jam .Start}}">
+    {{if not .Options}}
+    <p class="notice notice-error" role="alert">Jam {{jam .Start}} sudah tidak tersedia. Pilih jam lain di halaman jadwal.</p>
+    {{else}}
+    <form method="post" action="/v/{{.Venue.Slug}}/booking" class="form" novalidate>
+      <input type="hidden" name="court" value="{{.Court.ID}}">
+      <input type="hidden" name="date" value="{{isoDate .Day}}">
+      <input type="hidden" name="start" value="{{jam .Start}}">
 
-  {{with .Errors.form}}<p class="notice notice-error" role="alert">{{.}}</p>{{end}}
+      {{with .Errors.form}}<p class="notice notice-error" role="alert">{{.}}</p>{{end}}
 
-  <div class="field">
-    <label for="hours">Durasi</label>
-    <select id="hours" name="hours">
-      {{range .Options}}
-      <option value="{{.Hours}}"{{if eq .Hours $.Form.Hours}} selected{{end}}>{{.Hours}} jam, sampai {{jamSelesai .End}} ({{rupiah .Price}})</option>
+      <div class="field">
+        <label for="hours">Durasi main</label>
+        <select id="hours" name="hours">
+          {{range .Options}}
+          <option value="{{.Hours}}"{{if eq .Hours $.Form.Hours}} selected{{end}}>{{.Hours}} jam, {{jam $.Start}}–{{jamSelesai .End}} ({{rupiah .Price}})</option>
+          {{end}}
+        </select>
+        {{if lt (len .Options) 6}}<p class="hint">Durasi dibatasi jam tutup atau booking berikutnya.</p>{{end}}
+      </div>
+
+      <div class="field">
+        <label for="name">Nama pemesan</label>
+        <input id="name" name="name" value="{{.Form.Name}}" autocomplete="name" required maxlength="80"
+               {{with .Errors.name}}aria-invalid="true" aria-describedby="name-error"{{end}}>
+        {{with .Errors.name}}<p id="name-error" class="field-error">{{.}}</p>{{end}}
+      </div>
+
+      <div class="field">
+        <label for="phone">Nomor WhatsApp</label>
+        <input id="phone" name="phone" type="tel" inputmode="tel" value="{{.Form.Phone}}" autocomplete="tel" required
+               placeholder="081234567890" aria-describedby="phone-hint{{with .Errors.phone}} phone-error{{end}}"
+               {{with .Errors.phone}}aria-invalid="true"{{end}}>
+        <p id="phone-hint" class="hint">Dipakai pengelola untuk konfirmasi booking.</p>
+        {{with .Errors.phone}}<p id="phone-error" class="field-error">{{.}}</p>{{end}}
+      </div>
+
+      <div class="field">
+        <label for="notes">Catatan <span class="optional">opsional</span></label>
+        <textarea id="notes" name="notes" rows="2" maxlength="300"
+                  {{with .Errors.notes}}aria-invalid="true" aria-describedby="notes-error"{{end}}>{{.Form.Notes}}</textarea>
+        {{with .Errors.notes}}<p id="notes-error" class="field-error">{{.}}</p>{{end}}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Kirim booking</button>
+      {{if gt .Venue.HoldMinutes 0}}
+      <p class="hint center">Jadwal ditahan {{.Venue.HoldMinutes}} menit setelah booking. Kalau belum dibayar, booking batal otomatis.</p>
       {{end}}
-    </select>
+    </form>
+    {{end}}
   </div>
 
-  <div class="field">
-    <label for="name">Nama pemesan</label>
-    <input id="name" name="name" value="{{.Form.Name}}" autocomplete="name" required maxlength="80"
-           {{with .Errors.name}}aria-invalid="true" aria-describedby="name-error"{{end}}>
-    {{with .Errors.name}}<p id="name-error" class="field-error">{{.}}</p>{{end}}
-  </div>
-
-  <div class="field">
-    <label for="phone">Nomor WhatsApp</label>
-    <input id="phone" name="phone" type="tel" inputmode="tel" value="{{.Form.Phone}}" autocomplete="tel" required
-           placeholder="081234567890"
-           {{with .Errors.phone}}aria-invalid="true" aria-describedby="phone-error"{{end}}>
-    {{with .Errors.phone}}<p id="phone-error" class="field-error">{{.}}</p>{{end}}
-  </div>
-
-  <div class="field">
-    <label for="notes">Catatan <span class="muted">(opsional)</span></label>
-    <textarea id="notes" name="notes" rows="2" maxlength="300"
-              {{with .Errors.notes}}aria-invalid="true" aria-describedby="notes-error"{{end}}>{{.Form.Notes}}</textarea>
-    {{with .Errors.notes}}<p id="notes-error" class="field-error">{{.}}</p>{{end}}
-  </div>
-
-  {{if gt .Venue.HoldMinutes 0}}
-  <p class="muted small">Jadwal ditahan {{.Venue.HoldMinutes}} menit sambil menunggu pembayaran. Kalau belum dibayar, booking batal otomatis.</p>
-  {{end}}
-  <button type="submit" class="btn btn-primary">Kirim booking</button>
-</form>
-{{end}}
+  <aside class="two-col-side">
+    <div class="summary-card">
+      <h2 class="summary-title">Ringkasan</h2>
+      <dl class="summary">
+        <div><dt>Tempat</dt><dd>{{.Venue.Name}}</dd></div>
+        <div><dt>Lapangan</dt><dd>{{.Court.Name}}, {{.Court.Sport}}</dd></div>
+        <div><dt>Tanggal</dt><dd>{{tanggal .Day}}</dd></div>
+        <div><dt>Mulai</dt><dd>{{jam .Start}}</dd></div>
+        <div><dt>Harga</dt><dd>{{rupiah .Court.PricePerHour}} per jam</dd></div>
+      </dl>
+    </div>
+  </aside>
+</div>
 {{end}}
