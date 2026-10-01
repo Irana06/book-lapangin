@@ -1,0 +1,33 @@
+{{define "content"}}
+<div class="section-head">
+  <h1>Booking</h1>
+  <a class="btn btn-primary btn-small" href="/admin/booking/baru">Booking manual</a>
+</div>
+
+<form method="get" action="/admin/booking" class="filters">
+  <div class="field">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">Semua status</option>
+      {{range .Statuses}}
+      <option value="{{.}}"{{if eq . $.Status}} selected{{end}}>{{statusLabel .}}</option>
+      {{end}}
+    </select>
+  </div>
+  <div class="field">
+    <label for="date">Tanggal main</label>
+    <input id="date" type="date" name="date" value="{{.Date}}">
+  </div>
+  <button type="submit" class="btn btn-secondary">Terapkan</button>
+  {{if or .Status .Date}}<a href="/admin/booking">Hapus filter</a>{{end}}
+</form>
+
+{{if .Bookings}}
+<div class="booking-list">
+  {{range .Bookings}}{{template "booking_item" .}}{{end}}
+</div>
+<p class="muted small">Menampilkan maksimal 200 booking terbaru sesuai filter.</p>
+{{else}}
+<p class="empty">Tidak ada booking yang cocok dengan filter ini.</p>
+{{end}}
+{{end}}

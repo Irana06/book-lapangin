@@ -1,13 +1,17 @@
 {{define "content"}}
-<section class="hero">
-  <h1>Booking lapangan tanpa ribet chat admin</h1>
-  <p>Lihat jadwal kosong, pilih jam, langsung booking.</p>
-</section>
-
-<section>
-  <h2>Lapangan tersedia</h2>
-  <div hx-get="/partials/courts" hx-trigger="load" hx-swap="innerHTML">
-    <p class="muted">Memuat daftar lapangan…</p>
-  </div>
-</section>
+<h1>Pilih tempat main</h1>
+{{if .Venues}}
+<ul class="venue-list">
+  {{range .Venues}}
+  <li>
+    <a class="venue-link" href="/v/{{.Slug}}">
+      <strong>{{.Name}}</strong>
+      {{if .Address}}<span class="muted">{{.Address}}</span>{{end}}
+    </a>
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="empty">Belum ada tempat yang terdaftar.</p>
+{{end}}
 {{end}}

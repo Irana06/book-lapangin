@@ -1,0 +1,39 @@
+{{define "content"}}
+<section class="venue-head">
+  <h1>{{.Venue.Name}}</h1>
+  {{if .Venue.Address}}<p class="muted">{{.Venue.Address}}</p>{{end}}
+  {{if .Venue.Phone}}
+  <p><a href="{{waLink .Venue.Phone (printf "Halo %s, saya mau tanya soal booking lapangan." .Venue.Name)}}" target="_blank" rel="noopener">Tanya lewat WhatsApp</a></p>
+  {{end}}
+</section>
+
+{{if .Courts}}
+<section aria-labelledby="pick-title">
+  <h2 id="pick-title">Cek jadwal kosong</h2>
+  <form class="picker" action="/v/{{.Venue.Slug}}" method="get"
+        hx-get="/v/{{.Venue.Slug}}/slots" hx-target="#slots" hx-trigger="change, submit"
+        hx-indicator="#slots-loading">
+    <div class="field">
+      <label for="court">Lapangan</label>
+      <select id="court" name="court">
+        {{range .Courts}}
+        <option value="{{.ID}}"{{if eq .ID $.Court.ID}} selected{{end}}>{{.Name}} ({{.Sport}}), {{rupiah .PricePerHour}}/jam</option>
+        {{end}}
+      </select>
+    </div>
+    <div class="field">
+      <label for="date">Tanggal</label>
+      <input id="date" type="date" name="date" value="{{isoDate .Day}}" min="{{isoDate .Today}}" max="{{isoDate .Last}}" required>
+    </div>
+    <button type="submit" class="btn btn-secondary">Tampilkan jadwal</button>
+  </form>
+
+  <p id="slots-loading" class="htmx-indicator muted" role="status">Memuat jadwal…</p>
+  <div id="slots" aria-live="polite">
+    {{template "slots" .SlotsView}}
+  </div>
+</section>
+{{else}}
+<p class="empty">Belum ada lapangan yang bisa dibooking di tempat ini.</p>
+{{end}}
+{{end}}

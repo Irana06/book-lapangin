@@ -1,0 +1,59 @@
+{{define "content"}}
+<p><a href="/v/{{.Venue.Slug}}?court={{.Court.ID}}&date={{isoDate .Day}}">Kembali ke jadwal</a></p>
+<h1>Booking {{.Court.Name}}</h1>
+
+<dl class="summary">
+  <div><dt>Tempat</dt><dd>{{.Venue.Name}}</dd></div>
+  <div><dt>Lapangan</dt><dd>{{.Court.Name}} ({{.Court.Sport}})</dd></div>
+  <div><dt>Tanggal</dt><dd>{{tanggal .Day}}</dd></div>
+  <div><dt>Jam mulai</dt><dd>{{jam .Start}}</dd></div>
+</dl>
+
+{{if not .Options}}
+<p class="notice notice-error" role="alert">Jam {{jam .Start}} sudah tidak tersedia. Pilih jam lain di halaman jadwal.</p>
+{{else}}
+<form method="post" action="/v/{{.Venue.Slug}}/booking" class="form" novalidate>
+  <input type="hidden" name="court" value="{{.Court.ID}}">
+  <input type="hidden" name="date" value="{{isoDate .Day}}">
+  <input type="hidden" name="start" value="{{jam .Start}}">
+
+  {{with .Errors.form}}<p class="notice notice-error" role="alert">{{.}}</p>{{end}}
+
+  <div class="field">
+    <label for="hours">Durasi</label>
+    <select id="hours" name="hours">
+      {{range .Options}}
+      <option value="{{.Hours}}"{{if eq .Hours $.Form.Hours}} selected{{end}}>{{.Hours}} jam, sampai {{jamSelesai .End}} ({{rupiah .Price}})</option>
+      {{end}}
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="name">Nama pemesan</label>
+    <input id="name" name="name" value="{{.Form.Name}}" autocomplete="name" required maxlength="80"
+           {{with .Errors.name}}aria-invalid="true" aria-describedby="name-error"{{end}}>
+    {{with .Errors.name}}<p id="name-error" class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <div class="field">
+    <label for="phone">Nomor WhatsApp</label>
+    <input id="phone" name="phone" type="tel" inputmode="tel" value="{{.Form.Phone}}" autocomplete="tel" required
+           placeholder="081234567890"
+           {{with .Errors.phone}}aria-invalid="true" aria-describedby="phone-error"{{end}}>
+    {{with .Errors.phone}}<p id="phone-error" class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <div class="field">
+    <label for="notes">Catatan <span class="muted">(opsional)</span></label>
+    <textarea id="notes" name="notes" rows="2" maxlength="300"
+              {{with .Errors.notes}}aria-invalid="true" aria-describedby="notes-error"{{end}}>{{.Form.Notes}}</textarea>
+    {{with .Errors.notes}}<p id="notes-error" class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  {{if gt .Venue.HoldMinutes 0}}
+  <p class="muted small">Jadwal ditahan {{.Venue.HoldMinutes}} menit sambil menunggu pembayaran. Kalau belum dibayar, booking batal otomatis.</p>
+  {{end}}
+  <button type="submit" class="btn btn-primary">Kirim booking</button>
+</form>
+{{end}}
+{{end}}

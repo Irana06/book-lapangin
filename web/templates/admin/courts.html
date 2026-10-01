@@ -1,0 +1,24 @@
+{{define "content"}}
+<div class="section-head">
+  <h1>Lapangan</h1>
+  <a class="btn btn-primary btn-small" href="/admin/lapangan/baru">Tambah lapangan</a>
+</div>
+
+{{if .Courts}}
+<ul class="court-list">
+  {{range .Courts}}
+  <li class="court-row{{if not .IsActive}} is-inactive{{end}}">
+    <div>
+      <strong>{{.Name}}</strong>
+      <span class="muted">{{.Sport}}</span>
+    </div>
+    <div>{{rupiah .PricePerHour}}/jam</div>
+    <div>{{if .IsActive}}Aktif{{else}}<span class="muted">Nonaktif, tidak tampil di halaman publik</span>{{end}}</div>
+    <a href="/admin/lapangan/{{.ID}}" aria-label="Ubah {{.Name}}">Ubah</a>
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="empty">Belum ada lapangan. Tambahkan lapangan pertama supaya customer bisa mulai booking.</p>
+{{end}}
+{{end}}

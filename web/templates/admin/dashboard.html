@@ -1,0 +1,50 @@
+{{define "content"}}
+<h1>{{tanggal .Today}}</h1>
+
+<dl class="stats">
+  <div class="stat">
+    <dt>Booking hari ini</dt>
+    <dd>{{.Stats.TodayBookings}}</dd>
+  </div>
+  <div class="stat">
+    <dt>Menunggu pembayaran</dt>
+    <dd>{{.Stats.Pending}}</dd>
+  </div>
+  <div class="stat">
+    <dt>Pendapatan {{bulan .Today}}</dt>
+    <dd>{{rupiah .Stats.MonthRevenue}}<span class="stat-note">dari {{.Stats.MonthBookings}} booking lunas</span></dd>
+  </div>
+</dl>
+
+<section aria-labelledby="pending-title">
+  <h2 id="pending-title">Menunggu pembayaran</h2>
+  {{if .Pending}}
+  <div class="booking-list">
+    {{range .Pending}}{{template "booking_item" .}}{{end}}
+  </div>
+  {{else}}
+  <p class="empty">Tidak ada booking yang menunggu pembayaran.</p>
+  {{end}}
+</section>
+
+<section aria-labelledby="today-title">
+  <div class="section-head">
+    <h2 id="today-title">Jadwal hari ini</h2>
+    <a href="/admin/jadwal">Lihat grid jadwal</a>
+  </div>
+  {{if .Todays}}
+  <ul class="today-list">
+    {{range .Todays}}
+    <li>
+      <span class="today-time">{{jam .Start}}–{{jamSelesai .End}}</span>
+      <span>{{.CourtName}}</span>
+      <span>{{.CustomerName}}</span>
+      <span class="status status-{{.Status}}">{{statusLabel .Status}}</span>
+    </li>
+    {{end}}
+  </ul>
+  {{else}}
+  <p class="empty">Belum ada booking untuk hari ini.</p>
+  {{end}}
+</section>
+{{end}}

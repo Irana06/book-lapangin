@@ -20,7 +20,7 @@ func Load() (Config, error) {
 
 	cfg := Config{
 		Env:         getenv("APP_ENV", "development"),
-		Addr:        getenv("APP_ADDR", ":8080"),
+		Addr:        getenv("APP_ADDR", ":3000"),
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 	}
 

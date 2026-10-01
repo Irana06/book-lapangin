@@ -9,10 +9,13 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	_ "time/tzdata" // data zona waktu ikut di binary, jadi Asia/Jakarta jalan di Windows/container
 
 	"lapangin/internal/config"
 	"lapangin/internal/database"
+	"lapangin/internal/jobs"
 	"lapangin/internal/server"
+	"lapangin/internal/store"
 )
 
 func main() {
@@ -44,10 +47,13 @@ func run(logger *slog.Logger) error {
 		return err
 	}
 
-	srv, err := server.New(logger, pool)
+	st := store.New(pool)
+	srv, err := server.New(logger, st, server.Options{SecureCookies: cfg.Env == "production"})
 	if err != nil {
 		return err
 	}
+
+	go jobs.Run(ctx, logger, st, time.Minute)
 
 	httpServer := &http.Server{
 		Addr:              cfg.Addr,

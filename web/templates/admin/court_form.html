@@ -1,0 +1,39 @@
+{{define "content"}}
+<p><a href="/admin/lapangan">Kembali ke daftar lapangan</a></p>
+<h1>{{.Title}}</h1>
+
+<form method="post" action="{{if .ID}}/admin/lapangan/{{.ID}}{{else}}/admin/lapangan/baru{{end}}" class="form" novalidate>
+  <div class="field">
+    <label for="name">Nama lapangan</label>
+    <input id="name" name="name" value="{{.Form.Name}}" required maxlength="60" placeholder="Lapangan A"
+           {{with .Errors.name}}aria-invalid="true" aria-describedby="name-error"{{end}}>
+    {{with .Errors.name}}<p id="name-error" class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <div class="field">
+    <label for="sport">Jenis olahraga</label>
+    <select id="sport" name="sport">
+      {{$found := false}}
+      {{range sports}}
+      <option value="{{.}}"{{if eq . $.Form.Sport}} selected{{$found = true}}{{end}}>{{.}}</option>
+      {{end}}
+      {{if and .Form.Sport (not $found)}}<option value="{{.Form.Sport}}" selected>{{.Form.Sport}}</option>{{end}}
+    </select>
+    {{with .Errors.sport}}<p class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <div class="field">
+    <label for="price">Harga per jam (Rp)</label>
+    <input id="price" name="price" inputmode="numeric" value="{{.Form.Price}}" required placeholder="150000"
+           {{with .Errors.price}}aria-invalid="true" aria-describedby="price-error"{{end}}>
+    {{with .Errors.price}}<p id="price-error" class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <div class="field field-check">
+    <input id="active" name="active" type="checkbox"{{if .Form.IsActive}} checked{{end}}>
+    <label for="active">Aktif dan bisa dibooking</label>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Simpan lapangan</button>
+</form>
+{{end}}

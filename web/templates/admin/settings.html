@@ -1,0 +1,82 @@
+{{define "content"}}
+<h1>Pengaturan</h1>
+
+<section aria-labelledby="profile-title">
+  <h2 id="profile-title">Profil tempat</h2>
+  <form method="post" action="/admin/pengaturan" class="form" novalidate>
+    <div class="field">
+      <label for="name">Nama tempat</label>
+      <input id="name" name="name" value="{{.Form.Name}}" required maxlength="100">
+      {{with .Errors.name}}<p class="field-error">{{.}}</p>{{end}}
+    </div>
+    <div class="field">
+      <label for="phone">Nomor WhatsApp pengelola</label>
+      <input id="phone" name="phone" type="tel" inputmode="tel" value="{{.Form.Phone}}" placeholder="081234567890">
+      <p class="hint">Dipakai untuk tombol WhatsApp di halaman customer.</p>
+      {{with .Errors.phone}}<p class="field-error">{{.}}</p>{{end}}
+    </div>
+    <div class="field">
+      <label for="address">Alamat</label>
+      <input id="address" name="address" value="{{.Form.Address}}" maxlength="200">
+      {{with .Errors.address}}<p class="field-error">{{.}}</p>{{end}}
+    </div>
+    <div class="field">
+      <label for="payment_info">Info pembayaran</label>
+      <textarea id="payment_info" name="payment_info" rows="4" maxlength="1000"
+                placeholder="Contoh: Transfer ke BCA 1234567890 a.n. Nama Pemilik">{{.Form.PaymentInfo}}</textarea>
+      <p class="hint">Ditampilkan ke customer setelah booking.</p>
+      {{with .Errors.payment_info}}<p class="field-error">{{.}}</p>{{end}}
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="hold_minutes">Batas waktu bayar (menit)</label>
+        <input id="hold_minutes" name="hold_minutes" type="number" min="0" max="1440" value="{{.Form.HoldMinutes}}">
+        <p class="hint">0 berarti tidak ada batas.</p>
+        {{with .Errors.hold_minutes}}<p class="field-error">{{.}}</p>{{end}}
+      </div>
+      <div class="field">
+        <label for="booking_window_days">Booking dibuka sampai (hari ke depan)</label>
+        <input id="booking_window_days" name="booking_window_days" type="number" min="1" max="365" value="{{.Form.BookingWindowDays}}">
+        {{with .Errors.booking_window_days}}<p class="field-error">{{.}}</p>{{end}}
+      </div>
+    </div>
+    <p class="hint">Alamat halaman customer: <a href="/v/{{.Venue.Slug}}">/v/{{.Venue.Slug}}</a></p>
+    <button type="submit" class="btn btn-primary">Simpan profil</button>
+  </form>
+</section>
+
+<section aria-labelledby="hours-title">
+  <h2 id="hours-title">Jam buka</h2>
+  <form method="post" action="/admin/pengaturan/jam" class="form">
+    {{with .Errors.hours}}<p class="notice notice-error" role="alert">{{.}}</p>{{end}}
+    <table class="hours-table">
+      <thead>
+        <tr><th scope="col">Hari</th><th scope="col">Buka</th><th scope="col">Dari</th><th scope="col">Sampai</th></tr>
+      </thead>
+      <tbody>
+        {{range .Hours}}
+        {{$wd := printf "%d" .Weekday}}
+        <tr>
+          <th scope="row">{{namaHari .Weekday}}</th>
+          <td><input type="checkbox" id="open_{{$wd}}" name="open_{{$wd}}"{{if .Open}} checked{{end}} aria-label="Buka hari {{namaHari .Weekday}}"></td>
+          <td>
+            <select name="from_{{$wd}}" aria-label="Jam buka {{namaHari .Weekday}}">
+              {{$from := .From}}
+              {{range hourOptions}}<option value="{{.}}"{{if eq . $from}} selected{{end}}>{{.}}</option>{{end}}
+            </select>
+          </td>
+          <td>
+            <select name="to_{{$wd}}" aria-label="Jam tutup {{namaHari .Weekday}}">
+              {{$to := .To}}
+              {{range hourOptions}}<option value="{{.}}"{{if eq . $to}} selected{{end}}>{{.}}</option>{{end}}
+            </select>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    <p class="hint">Jam tutup paling malam 24:00. Booking yang sudah ada tidak ikut berubah.</p>
+    <button type="submit" class="btn btn-primary">Simpan jam buka</button>
+  </form>
+</section>
+{{end}}

@@ -6,13 +6,27 @@
   <title>{{.Title}} · Lapangin</title>
   <link rel="stylesheet" href="/static/css/app.css">
   <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+  <script src="/static/js/app.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Lewati ke konten</a>
   <header class="topbar">
-    <a href="/" class="brand">Lapangin</a>
+    <div class="topbar-inner">
+      <a href="/" class="brand">Lapangin</a>
+      <nav class="topnav" aria-label="Menu utama">
+        <a href="/cek"{{if eq .Path "/cek"}} aria-current="page"{{end}}>Cek booking</a>
+      </nav>
+    </div>
   </header>
-  <main class="container">
+  <main id="main" class="container">
+    {{with .Flash}}<p class="notice notice-ok" role="status">{{.}}</p>{{end}}
     {{template "content" .}}
   </main>
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Lapangin</span>
+      <a href="/admin/login">Masuk pengelola</a>
+    </div>
+  </footer>
 </body>
 </html>{{end}}

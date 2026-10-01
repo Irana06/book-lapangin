@@ -1,0 +1,70 @@
+{{define "content"}}
+<p><a href="/admin/jadwal?date={{.Form.Date}}">Kembali ke jadwal</a></p>
+<h1>Booking manual</h1>
+<p class="muted">Untuk pesanan lewat WhatsApp, telepon, atau datang langsung. Booking ini langsung berstatus lunas.</p>
+
+{{if not .Courts}}
+<p class="empty">Belum ada lapangan aktif. <a href="/admin/lapangan/baru">Tambah lapangan</a> dulu.</p>
+{{else}}
+<form method="post" action="/admin/booking/baru" class="form" novalidate>
+  {{with .Errors.form}}<p class="notice notice-error" role="alert">{{.}}</p>{{end}}
+
+  <div class="field">
+    <label for="court">Lapangan</label>
+    <select id="court" name="court">
+      {{range .Courts}}
+      <option value="{{.ID}}"{{if eq .ID $.Form.CourtID}} selected{{end}}>{{.Name}} ({{.Sport}}), {{rupiah .PricePerHour}}/jam</option>
+      {{end}}
+    </select>
+    {{with .Errors.court}}<p class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="date">Tanggal</label>
+      <input id="date" type="date" name="date" value="{{.Form.Date}}" required>
+      {{with .Errors.date}}<p class="field-error">{{.}}</p>{{end}}
+    </div>
+    <div class="field">
+      <label for="start">Jam mulai</label>
+      <select id="start" name="start">
+        {{range hourOptions}}{{if ne . "24:00"}}
+        <option value="{{.}}"{{if eq . $.Form.Start}} selected{{end}}>{{.}}</option>
+        {{end}}{{end}}
+      </select>
+      {{with .Errors.start}}<p class="field-error">{{.}}</p>{{end}}
+    </div>
+    <div class="field">
+      <label for="hours">Durasi</label>
+      <select id="hours" name="hours">
+        {{range durations}}
+        <option value="{{.}}"{{if eq . $.Form.Hours}} selected{{end}}>{{.}} jam</option>
+        {{end}}
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="name">Nama pemesan</label>
+    <input id="name" name="name" value="{{.Form.Name}}" required maxlength="80"
+           {{with .Errors.name}}aria-invalid="true" aria-describedby="name-error"{{end}}>
+    {{with .Errors.name}}<p id="name-error" class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <div class="field">
+    <label for="phone">Nomor WhatsApp</label>
+    <input id="phone" name="phone" type="tel" inputmode="tel" value="{{.Form.Phone}}" required placeholder="081234567890"
+           {{with .Errors.phone}}aria-invalid="true" aria-describedby="phone-error"{{end}}>
+    {{with .Errors.phone}}<p id="phone-error" class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <div class="field">
+    <label for="notes">Catatan <span class="muted">(opsional)</span></label>
+    <textarea id="notes" name="notes" rows="2" maxlength="300">{{.Form.Notes}}</textarea>
+    {{with .Errors.notes}}<p class="field-error">{{.}}</p>{{end}}
+  </div>
+
+  <button type="submit" class="btn btn-primary">Simpan booking</button>
+</form>
+{{end}}
+{{end}}

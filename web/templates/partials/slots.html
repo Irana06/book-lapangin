@@ -1,0 +1,35 @@
+{{define "slots"}}
+{{if .Notice}}
+<p class="empty">{{.Notice}}</p>
+{{else if .Closed}}
+<p class="empty">Tutup pada {{tanggal .Day}}. Coba pilih tanggal lain.</p>
+{{else if not .Slots}}
+<p class="empty">Tidak ada slot pada tanggal ini.</p>
+{{else}}
+<h3 class="slots-title">{{.Court.Name}}, {{tanggal .Day}}</h3>
+<ul class="slot-grid">
+  {{range .Slots}}
+  <li>
+    {{if .IsFree}}
+    <a class="slot slot-free" href="/v/{{$.Venue.Slug}}/booking?court={{$.Court.ID}}&date={{isoDate $.Day}}&start={{jam .Start}}"
+       aria-label="Booking jam {{jam .Start}}">
+      <span class="slot-time">{{jam .Start}}</span>
+      <span class="slot-state">Kosong</span>
+    </a>
+    {{else if .IsTaken}}
+    <span class="slot slot-taken">
+      <span class="slot-time">{{jam .Start}}</span>
+      <span class="slot-state">Terisi</span>
+    </span>
+    {{else}}
+    <span class="slot slot-past">
+      <span class="slot-time">{{jam .Start}}</span>
+      <span class="slot-state">Lewat</span>
+    </span>
+    {{end}}
+  </li>
+  {{end}}
+</ul>
+<p class="muted small">Pilih jam mulai. Durasi diatur di langkah berikutnya.</p>
+{{end}}
+{{end}}

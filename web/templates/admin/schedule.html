@@ -1,0 +1,60 @@
+{{define "content"}}
+<div class="section-head">
+  <h1>Jadwal {{tanggal .Day}}</h1>
+  <a class="btn btn-primary btn-small" href="/admin/booking/baru?date={{isoDate .Day}}">Booking manual</a>
+</div>
+
+<nav class="day-nav" aria-label="Pilih tanggal">
+  <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Prev}}">Sebelumnya</a>
+  <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Today}}">Hari ini</a>
+  <a class="btn btn-ghost btn-small" href="/admin/jadwal?date={{isoDate .Next}}">Berikutnya</a>
+  <form method="get" action="/admin/jadwal" class="day-jump">
+    <label for="date" class="visually-hidden">Tanggal</label>
+    <input id="date" type="date" name="date" value="{{isoDate .Day}}" onchange="this.form.submit()">
+    <noscript><button type="submit" class="btn btn-ghost btn-small">Buka</button></noscript>
+  </form>
+</nav>
+
+{{if not .Courts}}
+<p class="empty">Belum ada lapangan aktif. <a href="/admin/lapangan/baru">Tambah lapangan</a></p>
+{{else if not .Open}}
+<p class="empty">Tutup pada hari {{namaHari .Day.Weekday}}. Jam buka bisa diubah di <a href="/admin/pengaturan">Pengaturan</a>.</p>
+{{else}}
+<div class="table-scroll" role="region" aria-label="Grid jadwal" tabindex="0">
+  <table class="schedule">
+    <thead>
+      <tr>
+        <th scope="col">Jam</th>
+        {{range .Courts}}<th scope="col">{{.Name}}</th>{{end}}
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Rows}}
+      <tr>
+        <th scope="row">{{jam .Start}}</th>
+        {{range .Cells}}
+        <td>
+          {{if .Booking}}
+          <div class="cell-booking cell-{{.Booking.Status}}{{if not .IsStart}} cell-cont{{end}}">
+            {{if .IsStart}}
+            <strong>{{.Booking.CustomerName}}</strong>
+            <span class="small">{{statusLabel .Booking.Status}}, s.d. {{jamSelesai .Booking.End}}</span>
+            {{else}}
+            <span class="small">lanjutan {{.Booking.CustomerName}}</span>
+            {{end}}
+          </div>
+          {{else if .Past}}
+          <span class="cell-empty" aria-label="Kosong, sudah lewat">·</span>
+          {{else}}
+          <a class="cell-add" href="/admin/booking/baru?court={{.Court.ID}}&date={{isoDate .Start}}&start={{jam .Start}}"
+             aria-label="Tambah booking {{.Court.Name}} jam {{jam .Start}}">+ Isi</a>
+          {{end}}
+        </td>
+        {{end}}
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}
+{{end}}
