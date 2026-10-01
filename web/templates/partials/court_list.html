@@ -1,0 +1,18 @@
+{{define "court_list"}}
+{{if .}}
+<ul class="court-list">
+  {{range .}}
+  <li class="court-card">
+    <div>
+      <strong>{{.Name}}</strong>
+      <span class="badge">{{.Sport}}</span>
+    </div>
+    <div class="muted">{{.VenueName}}</div>
+    <div class="price">Rp{{.PricePerHour}} / jam</div>
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="muted">Belum ada lapangan. Tambahkan data venue dan lapangan dulu.</p>
+{{end}}
+{{end}}

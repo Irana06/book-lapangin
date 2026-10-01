@@ -1,0 +1,13 @@
+{{define "content"}}
+<section class="hero">
+  <h1>Booking lapangan tanpa ribet chat admin</h1>
+  <p>Lihat jadwal kosong, pilih jam, langsung booking.</p>
+</section>
+
+<section>
+  <h2>Lapangan tersedia</h2>
+  <div hx-get="/partials/courts" hx-trigger="load" hx-swap="innerHTML">
+    <p class="muted">Memuat daftar lapangan…</p>
+  </div>
+</section>
+{{end}}

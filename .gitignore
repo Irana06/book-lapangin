@@ -1,0 +1,13 @@
+# Environment
+.env
+
+# Build output
+/bin/
+/tmp/
+*.exe
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
